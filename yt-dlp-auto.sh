@@ -10,10 +10,10 @@ cat << "EOF"
 ║      ██║      ██║         ██████╔╝███████╗██║         ██║  ██║╚██████╔╝   ██║   ╚██████╔╝     ║
 ║      ╚═╝      ╚═╝         ╚═════╝ ╚══════╝╚═╝         ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝      ║
 ║                                                                                               ║
-║                       Smart YouTube Downloader for macOS                                      ║
+║                             Smart YouTube Downloader for macOS                                ║
 ║                                                                                               ║
-║                    Auto-update • Cookie Magic • Error Helper                                  ║
-║                            github.com/iyeoh88-svg                                             ║
+║                          Auto-update • Cookie Magic • Error Helper                            ║
+║                                  github.com/iyeoh88-svg                                       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════════════╝
 EOF
 # yt-dlp-auto.sh
