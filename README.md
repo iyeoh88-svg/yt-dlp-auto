@@ -1,18 +1,31 @@
-<img width="700" height="264" alt="image" src="https://github.com/user-attachments/assets/42287311-45fb-4415-9cc5-896e8171294c" />
+<div align="center">
+  
+<img width="679" height="186" alt="image" src="https://github.com/user-attachments/assets/243b036a-70cb-43b1-b7cf-836f38c02c90" />
 
-# yt-dlp-auto Auto Audio/Video Download Script
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![macOS](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
+[![Bash](https://img.shields.io/badge/bash-4.0+-green.svg)](https://www.gnu.org/software/bash/)
+[![yt-dlp](https://img.shields.io/badge/powered%20by-yt--dlp-red.svg)](https://github.com/yt-dlp/yt-dlp)
 
-A user-friendly bash script for macOS that simplifies downloading videos and audio from YouTube and other supported sites using yt-dlp. Features automatic updates, browser cookie extraction, and helpful error diagnostics.
+**A user-friendly bash script for macOS that simplifies downloading videos and audio from YouTube and other supported sites using yt-dlp.**
+
+*Features automatic updates, browser cookie extraction, and helpful error diagnostics.*
+
+[Installation](#installation) • [Usage](#usage) • [Features](#features) • [Troubleshooting](#troubleshooting)
+
+</div>
+
+---
 
 ## Features
 
--  **Auto-update**: Checks for and installs the latest version of yt-dlp
--  **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
--  **Flexible Output**: Choose Desktop or custom download location
--  **Audio or Video**: Extract audio as MP3 or download best quality video
--  **Dry-run Validation**: Tests parameters before downloading
--  **Detailed Logging**: Saves verbose logs for troubleshooting
--  **Error Diagnostics**: Provides helpful suggestions when things go wrong
+- 🔄 **Auto-update**: Checks for and installs the latest version of yt-dlp
+- 🍪 **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
+- 📁 **Flexible Output**: Choose Desktop or custom download location
+- 🎵 **Audio or Video**: Extract audio as MP3 or download best quality video
+- 🔍 **Dry-run Validation**: Tests parameters before downloading
+- 📝 **Detailed Logging**: Saves verbose logs for troubleshooting
+- 🛡️ **Error Diagnostics**: Provides helpful suggestions when things go wrong
 
 ## Prerequisites
 
@@ -35,7 +48,7 @@ brew install jq ffmpeg
 
 1. Download the script:
 ```bash
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/ytdl.sh
+curl -O https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/yt-dlp-auto.sh
 ```
 
 2. Make it executable:
@@ -45,7 +58,7 @@ chmod +x yt-dlp-auto.sh
 
 3. (Optional) Move to your PATH:
 ```bash
-mv yt-dlp-auto.sh /usr/local/bin/yt-dlp-auto
+mv ytdl.sh /usr/local/bin/yt-dlp-auto
 ```
 
 ## Usage
@@ -55,10 +68,11 @@ Simply run the script and follow the interactive prompts:
 ```bash
 ./yt-dlp-auto.sh
 ```
+or (if you did step 3)
 
-or
-
-yt-dlp-auto (if you did step 3)
+```bash
+$USER@Macbook ~ % yt-dlp-auto.sh
+```
 
 ### What the Script Will Ask:
 
@@ -130,7 +144,14 @@ See the [full list](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+Contributions are welcome! Here's how you can help:
+
+- 🐛 **Report bugs:** Open an issue with details and reproduction steps
+- 💡 **Suggest features:** Share your ideas in the issues section
+- 🔧 **Submit fixes:** Fork the repo, make changes, and open a pull request
+- 📖 **Improve docs:** Help make the README clearer
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
