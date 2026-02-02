@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="0.9.0"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -47,6 +47,20 @@ err() { echo -e "ERROR: $*" >&2; }
 # detect architecture for informative messaging
 ARCH="$(uname -m)"
 OS="$(uname -s)"
+
+# Helper function for yes/no prompts (defined early for use in auto-update)
+ask_yes_no() {
+  prompt="$1"; default="${2:-y}"
+  while true; do
+    read -rp "$prompt [y/n] (default: $default): " yn
+    yn="${yn:-$default}"
+    case "$yn" in
+      [Yy]* ) return 0;;
+      [Nn]* ) return 1;;
+      * ) echo "Please answer y or n.";;
+    esac
+  done
+}
 
 # --- Script Auto-Update Checker ---
 check_script_update() {
@@ -176,19 +190,6 @@ if [[ -z "$latest_tag" ]]; then
 else
   log "Latest release tag: $latest_tag ($latest_name)"
 fi
-
-ask_yes_no() {
-  prompt="$1"; default="${2:-y}"
-  while true; do
-    read -rp "$prompt [y/n] (default: $default): " yn
-    yn="${yn:-$default}"
-    case "$yn" in
-      [Yy]* ) return 0;;
-      [Nn]* ) return 1;;
-      * ) echo "Please answer y or n.";;
-    esac
-  done
-}
 
 perform_update() {
   target="${1:-$DEFAULT_INSTALL_PATH}"
@@ -469,5 +470,4 @@ else
   echo "You can paste the last 80 lines of $LOGFILE here and I can help analyse the error."
   exit $final_exit
 fi
-
 
