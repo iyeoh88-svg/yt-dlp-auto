@@ -214,7 +214,7 @@ mkdir -p "$DEST_DIR"
 
 # ask for folder name or default
 echo
-read -rp "Provide folder name for the download, or leave blank to auto-generate (timestamp + title): " FOLDER_NAME
+read -rp "Provide folder name for the download, or leave blank to auto-generate (timestamp + title): **please be patiece if you're download a huge playlist**" FOLDER_NAME
 
 # try to get a title for the URL (best-effort)
 safe_title=""
