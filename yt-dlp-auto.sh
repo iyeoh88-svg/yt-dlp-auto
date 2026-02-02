@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#!/usr/bin/env bash
 cat << "EOF"
 ╔═══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                                                                               ║
@@ -30,6 +29,9 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
+SCRIPT_VERSION="1.0.0"
+SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
+SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
 GITHUB_DL_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp"  # works for direct binary
 DEFAULT_INSTALL_PATH="/usr/local/bin/yt-dlp"
@@ -46,6 +48,90 @@ err() { echo -e "ERROR: $*" >&2; }
 ARCH="$(uname -m)"
 OS="$(uname -s)"
 
+# --- Script Auto-Update Checker ---
+check_script_update() {
+  log "Checking for script updates..."
+  
+  # Try to fetch the latest version from GitHub
+  if ! command -v curl >/dev/null 2>&1; then
+    return 0  # Skip if no curl
+  fi
+  
+  # Fetch the script and extract version
+  remote_script="$(curl -sL "$SCRIPT_URL" 2>/dev/null || true)"
+  if [[ -z "$remote_script" ]]; then
+    return 0  # Skip if fetch failed
+  fi
+  
+  # Extract version from remote script
+  remote_version="$(echo "$remote_script" | grep -m1 '^SCRIPT_VERSION=' | cut -d'"' -f2 || true)"
+  
+  if [[ -z "$remote_version" ]]; then
+    return 0  # Skip if can't parse version
+  fi
+  
+  # Compare versions (simple string comparison)
+  if [[ "$remote_version" != "$SCRIPT_VERSION" ]]; then
+    echo
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║  📦 Script Update Available!                                   ║"
+    echo "║  Current version: $SCRIPT_VERSION                                        ║"
+    echo "║  Latest version:  $remote_version                                        ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo
+    
+    if ask_yes_no "Download and install the latest version?" "y"; then
+      update_script
+    else
+      log "Skipping script update. You can update manually from: https://github.com/$SCRIPT_REPO"
+    fi
+  else
+    log "Script is up-to-date (v$SCRIPT_VERSION)"
+  fi
+}
+
+update_script() {
+  log "Downloading latest script version..."
+  
+  # Determine where this script is located
+  script_path="$(realpath "$0" 2>/dev/null || readlink -f "$0" 2>/dev/null || echo "$0")"
+  
+  # Download to temp file
+  tmp_script="$(mktemp /tmp/ytdl-update-XXXX.sh)"
+  
+  if curl -sL "$SCRIPT_URL" -o "$tmp_script"; then
+    chmod +x "$tmp_script"
+    
+    # Check if we need sudo to overwrite
+    if [[ -w "$script_path" ]]; then
+      mv "$tmp_script" "$script_path"
+      log "✓ Script updated successfully to $(grep '^SCRIPT_VERSION=' "$script_path" | cut -d'"' -f2)"
+      echo
+      log "Restarting script with new version..."
+      echo
+      sleep 1
+      exec "$script_path" "$@"
+    else
+      log "Need sudo to update script at $script_path"
+      if ask_yes_no "Use sudo to install update?" "y"; then
+        sudo mv "$tmp_script" "$script_path"
+        log "✓ Script updated successfully!"
+        echo
+        log "Restarting script with new version..."
+        echo
+        sleep 1
+        exec "$script_path" "$@"
+      else
+        log "Update cancelled. Temp file saved at: $tmp_script"
+        log "You can manually move it: sudo mv $tmp_script $script_path"
+      fi
+    fi
+  else
+    err "Failed to download update from $SCRIPT_URL"
+    rm -f "$tmp_script"
+  fi
+}
+
 # find installed yt-dlp (if any)
 find_yt_dlp() {
   if command -v yt-dlp >/dev/null 2>&1; then
@@ -60,6 +146,9 @@ find_yt_dlp() {
 }
 
 installed_bin="$(find_yt_dlp)"
+
+# --- Step 0: Check for script updates ---
+check_script_update
 
 # --- Step 1: compare with latest release on GitHub and update if desired ---
 echo
