@@ -48,7 +48,7 @@ brew install jq ffmpeg
 
 1. Download the script:
 ```bash
-https://github.com/iyeoh88-svg/yt-dlp-auto/blob/main/yt-dlp-auto.sh
+git clone https://github.com/iyeoh88-svg/yt-dlp-auto.git
 ```
 
 2. Make it executable:
@@ -58,7 +58,7 @@ chmod +x yt-dlp-auto.sh
 
 3. (Optional) Move to your PATH:
 ```bash
-mv ytdl.sh /usr/local/bin/yt-dlp-auto
+mv yt-dlp-auto.sh /usr/local/bin/yt-dlp-auto.sh
 ```
 
 ## Usage
