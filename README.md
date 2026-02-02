@@ -48,7 +48,7 @@ brew install jq ffmpeg
 
 1. Download the script:
 ```bash
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/yt-dlp-auto.sh
+https://github.com/iyeoh88-svg/yt-dlp-auto/blob/main/yt-dlp-auto.sh
 ```
 
 2. Make it executable:
@@ -86,7 +86,7 @@ $USER@Macbook ~ % yt-dlp-auto.sh
 ### Example Session
 
 ```
-Enter the YouTube URL: https://www.youtube.com/watch?v=dQw4w9WgxcQ
+Enter the YouTube URL: https://www.youtube.com/watch?v=XFkzRNyygfk&list=RDXFkzRNyygfk&start_radio=1
 Choose destination: 1 (Desktop)
 Folder name: [leave blank for auto]
 Format: 1 (Audio MP3)
