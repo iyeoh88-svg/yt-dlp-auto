@@ -53,7 +53,7 @@ git clone https://github.com/iyeoh88-svg/yt-dlp-auto.git
 
 2. Move into the folder:
 ```bash
-cd [your_folder_path]/yt-dlp-auto
+cd [your_default_download_location]/yt-dlp-auto
 ```
 
 3. Make it executable:
