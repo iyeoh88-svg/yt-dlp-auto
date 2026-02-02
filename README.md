@@ -19,7 +19,8 @@
 
 ## Features
 
-- 🔄 **Auto-update**: Checks for and installs the latest version of yt-dlp
+- 🔄 **Script Auto-Update**: Checks for script updates on GitHub and offers to update itself
+- 🔄 **yt-dlp Auto-Update**: Checks for and installs the latest version of yt-dlp
 - 🍪 **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
 - 📁 **Flexible Output**: Choose Desktop or custom download location
 - 🎵 **Audio or Video**: Extract audio as MP3 or download best quality video
@@ -46,33 +47,69 @@ brew install jq ffmpeg
 
 ## Installation
 
-1. Download the script:
-```bash
-curl -O https://raw.githubusercontent.com/iyeoh88-svg/yt-dlp-auto/main/yt-dlp-auto.sh
-```
+### Option 1: Quick Start (Easiest)
 
-2. Make it executable:
-```bash
-chmod +x yt-dlp-auto.sh
-```
+1. **Download the script:**
+   ```bash
+   curl -O https://raw.githubusercontent.com/iyeoh88-svg/yt-dlp-auto/main/yt-dlp-auto.sh
+   ```
 
-3. (Optional) Move to your system PATH: (if you prefer to execute the script from anywhere system wide)
-```bash
-mv yt-dlp-auto.sh /usr/local/bin/yt-dlp-auto.sh
-```
+2. **Make it executable:**
+   ```bash
+   chmod +x yt-dlp-auto.sh
+   ```
+
+3. **Run it:**
+   ```bash
+   ./yt-dlp-auto.sh
+   ```
+
+That's it! The script will be in your current folder.
+
+---
+
+### Option 2: Install Globally (Run from Anywhere)
+
+If you want to type shortcuts like `gogo` from any folder instead of `./yt-dlp-auto.sh`:
+
+1. **Download and make executable** (steps 1-2 above)
+
+2. **Move to your system PATH:**
+   ```bash
+   sudo mv yt-dlp-auto.sh /usr/local/bin/gogo
+   ```
+   *(You'll be asked for your password)*
+
+3. **Now run from anywhere:**
+   ```bash
+   gogo
+   ```
+   *(No need for `./` anymore!)*
+
+**What does this do?** It makes the script available system-wide, like other commands (`ls`, `cd`, etc.).
+
+---
+
+### 🤔 Which Option Should I Choose?
+
+**Choose Option 1 if:**
+- You're new to Terminal
+- You just want to try it out
+- You'll only use it occasionally
+
+**Choose Option 2 if:**
+- You'll use it regularly
+- You want convenience (type `gogo` instead of `./yt-dlp-auto.sh`)
+- You're comfortable with Terminal
+
+**Note:** You can always start with Option 1 and upgrade to Option 2 later!
 
 ## Usage
 
 Simply run the script and follow the interactive prompts:
 
 ```bash
-cd [path_to_script]
 ./yt-dlp-auto.sh
-```
-or (if you did step 3)
-
-```bash
-$USER@Macbook ~ % yt-dlp-auto.sh
 ```
 
 ### What the Script Will Ask:
@@ -87,7 +124,7 @@ $USER@Macbook ~ % yt-dlp-auto.sh
 ### Example Session
 
 ```
-Enter the YouTube URL: https://www.youtube.com/watch?v=XFkzRNyygfk&list=RDXFkzRNyygfk&start_radio=1
+Enter the YouTube URL: https://www.youtube.com/watch?v=dQw4w9WgxcQ
 Choose destination: 1 (Desktop)
 Folder name: [leave blank for auto]
 Format: 1 (Audio MP3)
@@ -121,6 +158,23 @@ Files are saved with this naming pattern:
 ```
 
 Example: `01 - How to Download Videos.mp3`
+
+## Updates
+
+### Script Updates
+The script checks for updates automatically each time you run it. If a new version is available, you'll be prompted to update.
+
+**Manual update:**
+```bash
+curl -L https://raw.githubusercontent.com/iyeoh88-svg/yt-dlp-auto/main/yt-dlp-auto.sh -o yt-dlp-auto.sh
+chmod +x yt-dlp-auto.sh
+```
+
+**Check current version:**
+The version is displayed in the script. Current version: `1.0.0`
+
+### yt-dlp Updates
+The script also checks and updates yt-dlp automatically on each run.
 
 ## Advanced Features
 
@@ -170,3 +224,4 @@ This tool is for personal use only. Respect copyright laws and terms of service 
 ---
 
 **Note**: This is a community tool and is not affiliated with or endorsed by YouTube, Google, or any video platform.
+
