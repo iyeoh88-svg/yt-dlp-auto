@@ -19,14 +19,14 @@
 
 ## Features
 
-- 🔄 **Script Auto-Update**: Checks for script updates on GitHub and offers to update itself
-- 🔄 **yt-dlp Auto-Update**: Checks for and installs the latest version of yt-dlp
-- 🍪 **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
-- 📁 **Flexible Output**: Choose Desktop or custom download location
-- 🎵 **Audio or Video**: Extract audio as MP3 or download best quality video
-- 🔍 **Dry-run Validation**: Tests parameters before downloading
-- 📝 **Detailed Logging**: Saves verbose logs for troubleshooting
-- 🛡️ **Error Diagnostics**: Provides helpful suggestions when things go wrong
+- **Script Auto-Update**: Checks for script updates on GitHub and offers to update itself
+- **yt-dlp Auto-Update**: Checks for and installs the latest version of yt-dlp
+- **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
+- **Flexible Output**: Choose Desktop or custom download location
+- **Audio or Video**: Extract audio as MP3 or download best quality video
+- **Dry-run Validation**: Tests parameters before downloading
+- **Detailed Logging**: Saves verbose logs for troubleshooting
+- **Error Diagnostics**: Provides helpful suggestions when things go wrong
 
 ## Prerequisites
 
@@ -90,7 +90,7 @@ If you want to type shortcuts like `gogo` from any folder instead of `./yt-dlp-a
 
 ---
 
-### 🤔 Which Option Should I Choose?
+### Which Option Should I Choose?
 
 **Choose Option 1 if:**
 - You're new to Terminal
@@ -201,10 +201,10 @@ See the [full list](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.
 
 Contributions are welcome! Here's how you can help:
 
-- 🐛 **Report bugs:** Open an issue with details and reproduction steps
-- 💡 **Suggest features:** Share your ideas in the issues section
-- 🔧 **Submit fixes:** Fork the repo, make changes, and open a pull request
-- 📖 **Improve docs:** Help make the README clearer
+- **Report bugs:** Open an issue with details and reproduction steps
+- **Suggest features:** Share your ideas in the issues section
+- **Submit fixes:** Fork the repo, make changes, and open a pull request
+- **Improve docs:** Help make the README clearer
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
