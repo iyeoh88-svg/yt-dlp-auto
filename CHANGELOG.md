@@ -5,6 +5,14 @@ All notable changes to yt-dlp-auto will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-08-30
+
+### Added
+- Live progress bar display during download (percentage, speed, ETA shown in the terminal in real time)
+
+### Changed
+- Download step now streams output through `tee` so progress is visible on screen while still being saved to the log file (previously all output was silently redirected to the log only)
+
 ## [1.0.0] - 2025-02-02
 
 ### Added

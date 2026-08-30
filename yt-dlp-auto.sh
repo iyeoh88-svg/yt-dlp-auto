@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="1.1.0"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -442,15 +442,20 @@ else
   log "Dry-run succeeded. Proceeding to download. Full verbose output will be saved to $LOGFILE"
 fi
 
-# run actual download with verbose logging (-v)
+# run actual download with verbose logging (-v) and a live progress display
+echo
+log "Starting download - progress will be shown below (full verbose log saved to $LOGFILE)"
+echo
 set +e
 # create a wrapper to run the final command (safe eval)
+# --progress forces yt-dlp to keep emitting progress updates even though stdout is piped through tee below
 final_eval=$(cat <<EOF
-"$installed_bin" -v $FINAL_OPTS $COOKIE_ARG -o "${OUT_PATH}/%(playlist_index)s - %(title)s.%(ext)s" "$TARGET_URL"
+"$installed_bin" -v --progress $FINAL_OPTS $COOKIE_ARG -o "${OUT_PATH}/%(playlist_index)s - %(title)s.%(ext)s" "$TARGET_URL"
 EOF
 )
-bash -c "$final_eval" >>"$LOGFILE" 2>&1
-final_exit=$?
+# tee shows the live progress bar on screen while still saving the full verbose output to the log file
+bash -c "$final_eval" 2>&1 | tee -a "$LOGFILE"
+final_exit=${PIPESTATUS[0]}
 set -e
 
 if [[ $final_exit -eq 0 ]]; then

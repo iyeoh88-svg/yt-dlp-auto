@@ -19,6 +19,7 @@
 
 ## Features
 
+- **Live Progress Display**: See real-time download percentage, speed, and ETA in the terminal while downloading
 - **Script Auto-Update**: Checks for script updates on GitHub and offers to update itself
 - **yt-dlp Auto-Update**: Checks for and installs the latest version of yt-dlp
 - **Smart Cookie Handling**: Automatically extracts cookies from Brave, Chrome, or Firefox
@@ -171,7 +172,7 @@ chmod +x yt-dlp-auto.sh
 ```
 
 **Check current version:**
-The version is displayed in the script. Current version: `1.0.0`
+The version is displayed in the script. Current version: `1.1.0`
 
 ### yt-dlp Updates
 The script also checks and updates yt-dlp automatically on each run.
