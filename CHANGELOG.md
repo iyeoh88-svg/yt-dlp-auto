@@ -5,6 +5,13 @@ All notable changes to yt-dlp-auto will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-30
+
+### Changed
+- Replaced the raw, scrolling yt-dlp output with a single clean in-place progress bar: `Downloading: |xxxxxxxxxxx| 88% , [SongName] , 20/100 songs`
+- Verbose debug output no longer prints to the terminal (still fully saved to the log file) - only the progress bar and real errors/warnings show on screen
+- Works for both single downloads and playlists; the song counter updates per item
+
 ## [1.1.0] - 2026-08-30
 
 ### Added

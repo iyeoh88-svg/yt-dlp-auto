@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.1.0"
+SCRIPT_VERSION="1.2.0"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -43,6 +43,34 @@ TIMESTAMP_FMT="%Y%m%d-%H%M%S"
 # --- Helpers ---
 log() { echo -e "[`date +'%Y-%m-%d %H:%M:%S'`] $*"; }
 err() { echo -e "ERROR: $*" >&2; }
+
+PROGRESS_BAR_WIDTH=30
+PROGRESS_MARKER="YTDLPAUTO_PROGRESS"
+
+# Renders a single, in-place-updating progress bar:
+#   Downloading: |xxxxxxxxxxx| 88% , [SongName] , 20/100 songs
+# Called once per progress update parsed from yt-dlp's --progress-template output.
+render_progress_bar() {
+  local percent_raw="$1" title="$2" cur="$3" total="$4"
+  local percent
+  percent="$(echo "$percent_raw" | tr -dc '0-9.')"
+  percent="${percent%%.*}"
+  [[ -z "$percent" ]] && percent=0
+  (( percent < 0 )) && percent=0
+  (( percent > 100 )) && percent=100
+
+  # keep the title short so the line doesn't wrap on narrower terminals
+  local short_title="${title:0:40}"
+
+  local filled=$(( percent * PROGRESS_BAR_WIDTH / 100 ))
+  local empty=$(( PROGRESS_BAR_WIDTH - filled ))
+  local bar=""
+  (( filled > 0 )) && bar="$(printf '%*s' "$filled" '' | tr ' ' 'x')"
+  (( empty > 0 )) && bar+="$(printf '%*s' "$empty" '')"
+
+  # \r returns to column 0, \033[K clears to end of line so shorter titles don't leave stray characters
+  printf "\r\033[KDownloading: |%s| %3d%% , [%s] , %s/%s songs" "$bar" "$percent" "$short_title" "$cur" "$total"
+}
 
 # detect architecture for informative messaging
 ARCH="$(uname -m)"
@@ -442,20 +470,40 @@ else
   log "Dry-run succeeded. Proceeding to download. Full verbose output will be saved to $LOGFILE"
 fi
 
-# run actual download with verbose logging (-v) and a live progress display
+# run actual download with a clean, single-line progress bar
+# Full verbose (-v) detail still goes to the log file; the screen only shows the
+# progress bar plus any real errors/warnings, so the terminal stays clean.
 echo
 log "Starting download - progress will be shown below (full verbose log saved to $LOGFILE)"
 echo
 set +e
-# create a wrapper to run the final command (safe eval)
-# --progress forces yt-dlp to keep emitting progress updates even though stdout is piped through tee below
+# custom progress-template emits one parseable line per update: marker|percent|title|position|total
+PROGRESS_TEMPLATE="download:${PROGRESS_MARKER}|%(progress._percent_str)s|%(info.title)s|%(info.playlist_autonumber|1)s|%(info.n_entries|1)s"
 final_eval=$(cat <<EOF
-"$installed_bin" -v --progress $FINAL_OPTS $COOKIE_ARG -o "${OUT_PATH}/%(playlist_index)s - %(title)s.%(ext)s" "$TARGET_URL"
+"$installed_bin" -v --progress --newline --progress-template "$PROGRESS_TEMPLATE" $FINAL_OPTS $COOKIE_ARG -o "${OUT_PATH}/%(playlist_index)s - %(title)s.%(ext)s" "$TARGET_URL"
 EOF
 )
-# tee shows the live progress bar on screen while still saving the full verbose output to the log file
-bash -c "$final_eval" 2>&1 | tee -a "$LOGFILE"
+bash -c "$final_eval" 2>&1 | while IFS= read -r line; do
+  # always keep the full line in the log for troubleshooting
+  printf '%s\n' "$line" >>"$LOGFILE"
+
+  case "$line" in
+    "${PROGRESS_MARKER}"\|*)
+      IFS='|' read -r _marker pct song_title cur total <<< "$line"
+      render_progress_bar "$pct" "$song_title" "$cur" "$total"
+      ;;
+    ERROR:*|WARNING:*)
+      # finish the current bar line, then show the error/warning on its own line
+      echo
+      echo "$line"
+      ;;
+    *)
+      : # suppress verbose/debug noise from the screen - it's still saved to the log above
+      ;;
+  esac
+done
 final_exit=${PIPESTATUS[0]}
+echo   # move off the progress bar line
 set -e
 
 if [[ $final_exit -eq 0 ]]; then
