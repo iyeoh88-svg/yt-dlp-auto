@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.0"
+SCRIPT_VERSION="1.2.1"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -143,10 +143,13 @@ update_script() {
   
   if curl -sL "$SCRIPT_URL" -o "$tmp_script"; then
     chmod +x "$tmp_script"
-    
-    # Check if we need sudo to overwrite
-    if [[ -w "$script_path" ]]; then
-      mv "$tmp_script" "$script_path"
+
+    # Check the *directory* is writable, not just the file - moving/renaming a file
+    # needs write permission on its containing folder. This matters for installs like
+    # /usr/local/bin, which is root-owned by default on macOS even if the file inside
+    # looks writable.
+    script_dir="$(dirname "$script_path")"
+    if [[ -w "$script_dir" ]] && mv "$tmp_script" "$script_path" 2>/dev/null; then
       log "✓ Script updated successfully to $(grep '^SCRIPT_VERSION=' "$script_path" | cut -d'"' -f2)"
       echo
       log "Restarting script with new version..."
@@ -154,15 +157,20 @@ update_script() {
       sleep 1
       exec "$script_path" "$@"
     else
-      log "Need sudo to update script at $script_path"
+      log "Need sudo to update script at $script_path (install directory isn't user-writable)"
       if ask_yes_no "Use sudo to install update?" "y"; then
-        sudo mv "$tmp_script" "$script_path"
-        log "✓ Script updated successfully!"
-        echo
-        log "Restarting script with new version..."
-        echo
-        sleep 1
-        exec "$script_path" "$@"
+        if sudo mv "$tmp_script" "$script_path"; then
+          log "✓ Script updated successfully!"
+          echo
+          log "Restarting script with new version..."
+          echo
+          sleep 1
+          exec "$script_path" "$@"
+        else
+          err "sudo mv failed - update was NOT installed."
+          log "Temp file saved at: $tmp_script"
+          log "You can manually move it: sudo mv $tmp_script $script_path"
+        fi
       else
         log "Update cancelled. Temp file saved at: $tmp_script"
         log "You can manually move it: sudo mv $tmp_script $script_path"
@@ -262,8 +270,12 @@ if [[ -n "$installed_bin" ]]; then
               log "Downloading to temporary file..."
               curl -L --fail "$GITHUB_DL_URL" -o "$tmpfile" || { err "Download failed"; rm -f "$tmpfile"; exit 1; }
               chmod +x "$tmpfile"
-              sudo mv "$tmpfile" "$target"
-              log "Moved new binary to $target (sudo)"
+              if sudo mv "$tmpfile" "$target"; then
+                log "Moved new binary to $target (sudo)"
+              else
+                err "sudo mv failed - yt-dlp binary was NOT updated."
+                log "Temp file saved at: $tmpfile"
+              fi
             else
               log "Will install to $ALT_INSTALL_PATH instead."
               perform_update "$ALT_INSTALL_PATH"

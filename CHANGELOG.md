@@ -5,6 +5,12 @@ All notable changes to yt-dlp-auto will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-09-06
+
+### Fixed
+- Self-update crashed with a raw `mv: Permission denied` and no fallback when the script was installed somewhere not writable by the current user (e.g. moved into `/usr/local/bin`, which is root-owned by default on macOS). It now correctly checks whether the *install directory* is writable (not just the file), and offers a `sudo` fallback with clear messaging instead of silently failing.
+- Same fix applied to the yt-dlp binary self-updater's sudo path, which had the same unchecked-`mv` gap.
+
 ## [1.2.0] - 2026-08-30
 
 ### Changed
