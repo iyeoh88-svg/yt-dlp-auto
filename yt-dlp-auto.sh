@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.2"
+SCRIPT_VERSION="1.2.3"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -81,6 +81,7 @@ render_progress_bar() {
   if   (( term_width < 50 )); then bar_width=10
   elif (( term_width < 70 )); then bar_width=15
   fi
+
 
   local filled=$(( percent * bar_width / 100 ))
   local empty=$(( bar_width - filled ))
@@ -172,12 +173,14 @@ check_script_update() {
 
 update_script() {
   log "Downloading latest script version..."
+  local script_args=("$@")
   
   # Determine where this script is located
   script_path="$(realpath "$0" 2>/dev/null || readlink -f "$0" 2>/dev/null || echo "$0")"
   
-  # Download to temp file
-  tmp_script="$(mktemp /tmp/ytdl-update-XXXX.sh)"
+  # Download to a temporary file. BSD mktemp (used by macOS) requires the
+  # template to end with X characters; a suffix such as "XXXX.sh" fails.
+  tmp_script="$(mktemp "${TMPDIR:-/tmp}/ytdl-update.XXXXXX")"
   
   if curl -sL "$SCRIPT_URL" -o "$tmp_script"; then
     chmod +x "$tmp_script"
@@ -193,7 +196,7 @@ update_script() {
       log "Restarting script with new version..."
       echo
       sleep 1
-      exec "$script_path" "$@"
+      exec "$script_path" "${script_args[@]}"
     else
       log "Need sudo to update script at $script_path (install directory isn't user-writable)"
       if ask_yes_no "Use sudo to install update?" "y"; then
@@ -203,7 +206,7 @@ update_script() {
           log "Restarting script with new version..."
           echo
           sleep 1
-          exec "$script_path" "$@"
+          exec "$script_path" "${script_args[@]}"
         else
           err "sudo mv failed - update was NOT installed."
           log "Temp file saved at: $tmp_script"
@@ -573,4 +576,3 @@ else
   echo "You can paste the last 80 lines of $LOGFILE here and I can help analyse the error."
   exit $final_exit
 fi
-
