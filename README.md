@@ -172,7 +172,7 @@ chmod +x yt-dlp-auto.sh
 ```
 
 **Check current version:**
-The version is displayed in the script. Current version: `1.2.2`
+The version is displayed in the script. Current version: `1.2.3`
 
 ### yt-dlp Updates
 The script also checks and updates yt-dlp automatically on each run.
@@ -225,4 +225,3 @@ This tool is for personal use only. Respect copyright laws and terms of service 
 ---
 
 **Note**: This is a community tool and is not affiliated with or endorsed by YouTube, Google, or any video platform.
-
