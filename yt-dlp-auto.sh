@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.1"
+SCRIPT_VERSION="1.2.2"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -44,12 +44,23 @@ TIMESTAMP_FMT="%Y%m%d-%H%M%S"
 log() { echo -e "[`date +'%Y-%m-%d %H:%M:%S'`] $*"; }
 err() { echo -e "ERROR: $*" >&2; }
 
-PROGRESS_BAR_WIDTH=30
+PROGRESS_BAR_WIDTH=20
 PROGRESS_MARKER="YTDLPAUTO_PROGRESS"
+# Use a control character (Unit Separator, 0x1F) instead of a visible delimiter like "|" -
+# real video/song titles very often legitimately contain "|" (e.g. "Song | Official Audio"),
+# which would otherwise corrupt the field split below.
+FIELD_SEP=$'\x1f'
 
 # Renders a single, in-place-updating progress bar:
 #   Downloading: |xxxxxxxxxxx| 88% , [SongName] , 20/100 songs
 # Called once per progress update parsed from yt-dlp's --progress-template output.
+#
+# IMPORTANT: the whole rendered line must fit within the terminal's actual width.
+# If it's longer, the terminal wraps it onto multiple physical rows - and \r plus
+# clear-to-end-of-line only rewind/clear the CURRENT row, not the ones above it.
+# Each redraw then leaves fragments of the previous (differently-wrapped) render
+# behind, which looks like the bar "spamming" the whole terminal with junk lines.
+# So the title is truncated dynamically to whatever actually fits, not a fixed guess.
 render_progress_bar() {
   local percent_raw="$1" title="$2" cur="$3" total="$4"
   local percent
@@ -59,17 +70,44 @@ render_progress_bar() {
   (( percent < 0 )) && percent=0
   (( percent > 100 )) && percent=100
 
-  # keep the title short so the line doesn't wrap on narrower terminals
-  local short_title="${title:0:40}"
+  # figure out the real terminal width; fall back sanely if it can't be detected
+  local term_width
+  term_width="$(tput cols 2>/dev/null)"
+  [[ -z "$term_width" ]] && term_width="${COLUMNS:-80}"
+  [[ "$term_width" -lt 20 ]] && term_width=80
 
-  local filled=$(( percent * PROGRESS_BAR_WIDTH / 100 ))
-  local empty=$(( PROGRESS_BAR_WIDTH - filled ))
+  # shrink the bar itself on narrower terminals, so there's still room left for text
+  local bar_width=$PROGRESS_BAR_WIDTH
+  if   (( term_width < 50 )); then bar_width=10
+  elif (( term_width < 70 )); then bar_width=15
+  fi
+
+  local filled=$(( percent * bar_width / 100 ))
+  local empty=$(( bar_width - filled ))
   local bar=""
   (( filled > 0 )) && bar="$(printf '%*s' "$filled" '' | tr ' ' 'x')"
   (( empty > 0 )) && bar+="$(printf '%*s' "$empty" '')"
 
-  # \r returns to column 0, \033[K clears to end of line so shorter titles don't leave stray characters
-  printf "\r\033[KDownloading: |%s| %3d%% , [%s] , %s/%s songs" "$bar" "$percent" "$short_title" "$cur" "$total"
+  local pct_str counts base_no_title line
+  pct_str="$(printf '%3d' "$percent")"
+  counts="${cur}/${total} songs"
+  base_no_title="Downloading: |${bar}| ${pct_str}% , ${counts}"
+
+  # only add the title if there's meaningfully more than a sliver of room for it
+  local overhead_with_title="Downloading: |${bar}| ${pct_str}% , [] , ${counts}"
+  local room_for_title=$(( term_width - ${#overhead_with_title} - 1 ))
+  if (( room_for_title >= 3 )); then
+    local short_title="${title:0:room_for_title}"
+    line="Downloading: |${bar}| ${pct_str}% , [${short_title}] , ${counts}"
+  else
+    line="$base_no_title"
+  fi
+
+  # final safety net: hard-truncate no matter what, so the line can never wrap
+  (( ${#line} > term_width )) && line="${line:0:term_width}"
+
+  # \r returns to column 0, \033[K clears to end of line so shorter redraws don't leave stray characters
+  printf "\r\033[K%s" "$line"
 }
 
 # detect architecture for informative messaging
@@ -490,7 +528,7 @@ log "Starting download - progress will be shown below (full verbose log saved to
 echo
 set +e
 # custom progress-template emits one parseable line per update: marker|percent|title|position|total
-PROGRESS_TEMPLATE="download:${PROGRESS_MARKER}|%(progress._percent_str)s|%(info.title)s|%(info.playlist_autonumber|1)s|%(info.n_entries|1)s"
+PROGRESS_TEMPLATE="download:${PROGRESS_MARKER}${FIELD_SEP}%(progress._percent_str)s${FIELD_SEP}%(info.title)s${FIELD_SEP}%(info.playlist_autonumber|1)s${FIELD_SEP}%(info.n_entries|1)s"
 final_eval=$(cat <<EOF
 "$installed_bin" -v --progress --newline --progress-template "$PROGRESS_TEMPLATE" $FINAL_OPTS $COOKIE_ARG -o "${OUT_PATH}/%(playlist_index)s - %(title)s.%(ext)s" "$TARGET_URL"
 EOF
@@ -500,8 +538,8 @@ bash -c "$final_eval" 2>&1 | while IFS= read -r line; do
   printf '%s\n' "$line" >>"$LOGFILE"
 
   case "$line" in
-    "${PROGRESS_MARKER}"\|*)
-      IFS='|' read -r _marker pct song_title cur total <<< "$line"
+    "${PROGRESS_MARKER}${FIELD_SEP}"*)
+      IFS="$FIELD_SEP" read -r _marker pct song_title cur total <<< "$line"
       render_progress_bar "$pct" "$song_title" "$cur" "$total"
       ;;
     ERROR:*|WARNING:*)

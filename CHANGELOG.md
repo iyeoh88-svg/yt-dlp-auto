@@ -5,6 +5,12 @@ All notable changes to yt-dlp-auto will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2026-09-07
+
+### Fixed
+- The single-line progress bar could "spam" the terminal with junk lines instead of updating in place. Cause: the rendered line (bar + full title) could be longer than the terminal's actual width, so it wrapped onto multiple rows - and `\r`/clear-to-end-of-line only rewind the current row, leaving fragments of earlier renders behind on each redraw. It now measures the real terminal width and dynamically sizes the bar and truncates the title (or drops the title/shrinks the bar entirely on very narrow terminals) so the line can never wrap.
+- The progress line parser used `|` as a field delimiter, which could corrupt the display for titles that themselves contain `|` (a common convention, e.g. "Song Name | Official Audio"). Switched to a control character that can't appear in real titles.
+
 ## [1.2.1] - 2026-09-06
 
 ### Fixed
