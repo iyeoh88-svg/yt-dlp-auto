@@ -135,6 +135,8 @@ Cookies: 1 (Auto from Chrome)
 
 For a TikTok profile download, the script passes the profile URL to yt-dlp as a playlist and downloads the videos available from that profile. TikTok may limit access to some videos or require cookies.
 
+If TikTok reports `Unable to extract secondary user ID`, the script offers a fallback prompt for the creator's channel ID. If you can obtain that ID from one of the creator's video URLs, enter it when prompted; the script retries with yt-dlp's `tiktokuser:<channel_id>` input. This fallback depends on yt-dlp and TikTok continuing to support that extractor.
+
 ## Cookie Handling
 
 For age-restricted, private, or members-only content, you'll need cookies:
@@ -175,7 +177,7 @@ chmod +x yt-dlp-auto.sh
 ```
 
 **Check current version:**
-The version is displayed in the script. Current version: `1.2.4`
+The version is displayed in the script. Current version: `1.2.5`
 
 ### yt-dlp Updates
 The script also checks and updates yt-dlp automatically on each run.

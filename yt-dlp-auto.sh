@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.4"
+SCRIPT_VERSION="1.2.5"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -368,6 +368,7 @@ read -rp "Select option [1/2] (default 1): " download_type
 download_type="${download_type:-1}"
 
 SOURCE_OPTS=""
+IS_TIKTOK_PROFILE=false
 if [[ "$download_type" == "2" ]]; then
   read -rp "Enter the TikTok user profile URL (for example, https://www.tiktok.com/@username): " TARGET_URL
   if [[ ! "$TARGET_URL" =~ ^https?://([[:alnum:]-]+\.)*tiktok\.com/@[^/?#]+/?([?#].*)?$ ]]; then
@@ -375,6 +376,7 @@ if [[ "$download_type" == "2" ]]; then
     exit 1
   fi
   SOURCE_OPTS="--yes-playlist"
+  IS_TIKTOK_PROFILE=true
 elif [[ "$download_type" == "1" ]]; then
   read -rp "Enter the video or playlist URL to download: " TARGET_URL
 else
@@ -509,6 +511,32 @@ EOF
 bash -c "$eval_cmd" >"$LOGFILE" 2>&1
 dry_exit=$?
 set -e
+
+if [[ $dry_exit -ne 0 && "$IS_TIKTOK_PROFILE" == true ]] &&
+  grep -q "Unable to extract secondary user ID" "$LOGFILE"; then
+  echo
+  log "TikTok could not resolve this profile's secondary user ID."
+  echo "If you can get the creator's channel ID from one of their TikTok videos,"
+  echo "enter it below. yt-dlp will retry using tiktokuser:<channel_id>."
+  read -rp "TikTok channel ID (leave blank to skip this fallback): " tiktok_channel_id
+
+  if [[ -n "$tiktok_channel_id" ]]; then
+    if [[ ! "$tiktok_channel_id" =~ ^[[:alnum:]_-]+$ ]]; then
+      err "Channel ID may contain only letters, numbers, underscores, and hyphens."
+    else
+      TARGET_URL="tiktokuser:$tiktok_channel_id"
+      log "Retrying TikTok profile validation with the provided channel ID..."
+      eval_cmd=$(cat <<EOF
+"$installed_bin" --simulate --no-warnings $FINAL_OPTS $COOKIE_ARG "$TARGET_URL"
+EOF
+)
+      set +e
+      bash -c "$eval_cmd" >"$LOGFILE" 2>&1
+      dry_exit=$?
+      set -e
+    fi
+  fi
+fi
 
 if [[ $dry_exit -ne 0 ]]; then
   err "Dry-run failed. See $LOGFILE for details."
