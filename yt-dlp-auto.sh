@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.5"
+SCRIPT_VERSION="1.2.6"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -516,8 +516,12 @@ if [[ $dry_exit -ne 0 && "$IS_TIKTOK_PROFILE" == true ]] &&
   grep -q "Unable to extract secondary user ID" "$LOGFILE"; then
   echo
   log "TikTok could not resolve this profile's secondary user ID."
-  echo "If you can get the creator's channel ID from one of their TikTok videos,"
-  echo "enter it below. yt-dlp will retry using tiktokuser:<channel_id>."
+  echo "To get the channel ID:"
+  echo "  1. Open another Terminal window and copy a video URL posted by this creator."
+  echo "  2. Run this command, replacing VIDEO_URL with that video's URL:"
+  printf '     "%s" --print '\''%%(channel_id)s'\'' "VIDEO_URL"\n' "$installed_bin"
+  echo "  3. Paste the channel ID printed by yt-dlp below."
+  echo "The command may take a few seconds to fetch the video's metadata."
   read -rp "TikTok channel ID (leave blank to skip this fallback): " tiktok_channel_id
 
   if [[ -n "$tiktok_channel_id" ]]; then
