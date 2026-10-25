@@ -29,7 +29,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Config / defaults ---
-SCRIPT_VERSION="1.2.3"
+SCRIPT_VERSION="1.2.4"
 SCRIPT_REPO="iyeoh88-svg/yt-dlp-auto"
 SCRIPT_URL="https://raw.githubusercontent.com/$SCRIPT_REPO/main/yt-dlp-auto.sh"
 GITHUB_LATEST_API="https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest"
@@ -361,7 +361,27 @@ log "Using yt-dlp binary: $installed_bin (version: $("$installed_bin" --version 
 
 # --- Step 2: Prompt for URL and download options ---
 echo
-read -rp "Enter the YouTube (or supported site) URL to download: " TARGET_URL
+echo "Choose what to download:"
+echo "  1) A video or playlist URL (YouTube, TikTok, and other supported sites)"
+echo "  2) All available videos from a TikTok user profile"
+read -rp "Select option [1/2] (default 1): " download_type
+download_type="${download_type:-1}"
+
+SOURCE_OPTS=""
+if [[ "$download_type" == "2" ]]; then
+  read -rp "Enter the TikTok user profile URL (for example, https://www.tiktok.com/@username): " TARGET_URL
+  if [[ ! "$TARGET_URL" =~ ^https?://([[:alnum:]-]+\.)*tiktok\.com/@[^/?#]+/?([?#].*)?$ ]]; then
+    err "Please enter a TikTok user profile URL such as https://www.tiktok.com/@username."
+    exit 1
+  fi
+  SOURCE_OPTS="--yes-playlist"
+elif [[ "$download_type" == "1" ]]; then
+  read -rp "Enter the video or playlist URL to download: " TARGET_URL
+else
+  err "Invalid download type. Choose 1 or 2."
+  exit 1
+fi
+
 if [[ -z "$TARGET_URL" ]]; then
   err "No URL provided. Exiting."
   exit 1
@@ -466,11 +486,11 @@ if [[ "$fmt" == "1" ]]; then
   # Audio
   # use best audio extraction, prefer mp3 (if ffmpeg installed)
   AUDIO_OPTS="--extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail --add-metadata"
-  FINAL_OPTS="$COMMON_OPTS $AUDIO_OPTS"
+  FINAL_OPTS="$COMMON_OPTS $SOURCE_OPTS $AUDIO_OPTS"
 else
   # Video
   VIDEO_OPTS="-f bestvideo+bestaudio/best --merge-output-format mp4 --embed-subs --add-metadata"
-  FINAL_OPTS="$COMMON_OPTS $VIDEO_OPTS"
+  FINAL_OPTS="$COMMON_OPTS $SOURCE_OPTS $VIDEO_OPTS"
 fi
 
 # assemble final command (note: cookie arg may contain spaces/quotes - handle carefully)
