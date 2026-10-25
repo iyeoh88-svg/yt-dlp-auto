@@ -5,6 +5,11 @@ All notable changes to yt-dlp-auto will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6] - 2026-10-25
+
+### Changed
+- Added step-by-step instructions at the TikTok channel-ID fallback prompt and in the README, including the yt-dlp command to obtain the ID from one of the creator's videos.
+
 ## [1.2.5] - 2026-10-25
 
 ### Fixed
