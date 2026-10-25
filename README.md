@@ -116,7 +116,7 @@ Simply run the script and follow the interactive prompts:
 ### What the Script Will Ask:
 
 1. **Update yt-dlp?** - Checks for latest version and offers to update
-2. **Video URL** - Enter the YouTube or supported site URL
+2. **Download type and URL** - Enter a video/playlist URL, or choose TikTok user profile to download all available videos from that profile
 3. **Download Location** - Desktop (default) or custom path
 4. **Folder Name** - Auto-generates from video title or you can specify
 5. **Format** - Audio (MP3) or Video (MP4)
@@ -125,12 +125,15 @@ Simply run the script and follow the interactive prompts:
 ### Example Session
 
 ```
-Enter the YouTube URL: https://www.youtube.com/watch?v=dQw4w9WgxcQ
+Download type: 2 (TikTok user profile)
+TikTok profile URL: https://www.tiktok.com/@username
 Choose destination: 1 (Desktop)
 Folder name: [leave blank for auto]
 Format: 1 (Audio MP3)
 Cookies: 1 (Auto from Chrome)
 ```
+
+For a TikTok profile download, the script passes the profile URL to yt-dlp as a playlist and downloads the videos available from that profile. TikTok may limit access to some videos or require cookies.
 
 ## Cookie Handling
 
@@ -172,7 +175,7 @@ chmod +x yt-dlp-auto.sh
 ```
 
 **Check current version:**
-The version is displayed in the script. Current version: `1.2.3`
+The version is displayed in the script. Current version: `1.2.4`
 
 ### yt-dlp Updates
 The script also checks and updates yt-dlp automatically on each run.
@@ -195,6 +198,8 @@ yt-dlp supports 1000+ sites including:
 - Twitter/X
 - TikTok
 - And many more
+
+TikTok video links work through the standard URL option. To download a creator's available videos in one run, choose **All available videos from a TikTok user profile** and enter the profile URL, such as `https://www.tiktok.com/@username`.
 
 See the [full list](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 
